@@ -1,0 +1,66 @@
+---
+// src/sections/FAQ.astro
+import SectionHeader from '@/components/SectionHeader.astro';
+
+type QA = { q: string; a: string };
+
+const faqs: QA[] = [
+  // Stay at Camp David
+  { q: 'How many cottages are there?', a: 'Four — Lakefront, Viewpoint, Maplecrest, and Hilltop.' },
+  { q: 'How many bedrooms in each?', a: 'Lakefront & Viewpoint: 3 each. Maplecrest: 7. Hilltop: 4.' },
+  { q: 'How many guests can stay?', a: 'About 25–30 across the main cottages; +8–9 more if Hilltop is included.' },
+  { q: 'Do all cottages have lake access?', a: 'Yes. Each party gets a dedicated portion of our private 100-foot shoreline.' },
+
+  // Amenities & Practical
+  { q: 'Can we dock our own boat?', a: 'Yes, you can keep your boat at the dock.' },
+  { q: 'Do you have grills and fire pits?', a: 'Each cottage has both. We provide propane and firewood.' },
+  { q: 'Is Camp David child-friendly?', a: 'Very. Shallow water by the dock, lifejackets/floats, games, and a Party Room with ping-pong.' },
+  { q: 'Where’s the nearest supermarket?', a: 'Bantam Market (<1 mile). Stop & Shop is ~3 miles away in Litchfield.' },
+  { q: 'Hardware store or pharmacy?', a: 'Tru-Value and CVS on the road to Litchfield; bigger stores in Torrington (~10 miles).' },
+
+  // Fun & Local
+  { q: 'Is Camp David good for events?', a: 'Yes — ideal for reunions, weddings, and celebrations.' },
+  { q: 'What activities are popular?', a: 'Kayaking, hiking, biking, swimming, wine-tasting, scenic drives, and sunsets.' },
+  { q: 'Best ice cream nearby?', a: 'Arethusa in Bantam is the classic. Peaches & Cream and Popey’s are close, too.' },
+];
+
+// Build FAQPage JSON-LD
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+---
+
+<section class="mx-auto max-w-6xl px-4 py-14">
+  <SectionHeader
+    kicker="Good to Know"
+    title="Frequently Asked Questions"
+    align="left"
+    dense={true}
+  />
+
+  <div class="mt-8 grid gap-4">
+    {faqs.map(({ q, a }) => (
+      <details
+        class="group rounded-xl border border-black/10 bg-white p-4 transition hover:border-black/20 open:shadow-sm"
+      >
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+          <span class="text-[16px] md:text-[17px] font-semibold text-neutral-900">{q}</span>
+          <span
+            class="ui-font grid h-7 w-7 shrink-0 place-items-center rounded-full border border-black/10 text-[12px] text-neutral-700 transition group-open:rotate-45"
+            aria-hidden="true"
+          >+</span>
+        </summary>
+        <p class="mt-2 text-[15px] leading-7 text-neutral-700">{a}</p>
+      </details>
+    ))}
+  </div>
+
+  <!-- SEO: structured data for FAQ rich results -->
+  <script type="application/ld+json" is:inline>{JSON.stringify(faqJsonLd)}</script>
+</section>

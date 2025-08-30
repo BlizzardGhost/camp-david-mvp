@@ -1,0 +1,51 @@
+---
+/**
+ * VR/360 embed for the Intro section.
+ *
+ * Usage:
+ * 1) If you have a WPVR embed URL, pass `iframeSrc="https://www.campdavidct.com/wpvr/?id=1317&embed=1"`
+ * 2) Otherwise, pass an equirectangular `image` (4096x2048 etc.) and we’ll load a lightweight viewer.
+ *
+ * Props:
+ *  - title: string (a11y)
+ *  - iframeSrc?: string  // Option A: use WPVR iframe
+ *  - image?: string      // Option B: equirectangular image URL
+ *  - ratio?: string      // CSS aspect ratio, default "16/9"
+ */
+const { title = '360° Tour', iframeSrc, image, ratio = '16/9' } = Astro.props;
+---
+{iframeSrc ? (
+  <div class="overflow-hidden rounded-xl border" style={`aspect-ratio:${ratio}`}>
+    <iframe
+      src={iframeSrc}
+      title={title}
+      loading="lazy"
+      class="h-full w-full"
+      allow="xr-spatial-tracking; gyroscope; accelerometer; fullscreen"
+    />
+  </div>
+) : (
+  <div class="relative overflow-hidden rounded-xl border" style={`aspect-ratio:${ratio}`}>
+    <div id="pano" class="absolute inset-0"></div>
+    <script is:inline src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css" />
+    <script is:inline>
+      const img = {JSON.stringify(image)};
+      if (img) {
+        window.addEventListener('DOMContentLoaded', () => {
+          // @ts-ignore
+          pannellum.viewer('pano', {
+            type: 'equirectangular',
+            autoLoad: true,
+            panorama: img,
+            showControls: true,
+            hfov: 100
+          });
+        });
+      } else {
+        document.getElementById('pano').innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666">360° image not set</div>';
+      }
+    </script>
+  </div>
+)}

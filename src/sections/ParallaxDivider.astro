@@ -1,0 +1,17 @@
+---
+export interface Props {
+  src: string;      // image url
+  height?: string;  // e.g. '60vh'
+}
+const { src, height = '65vh' } = Astro.props;
+---
+
+<section aria-hidden="true" class="w-full">
+  <div
+    class="relative w-full bg-center bg-cover md:bg-fixed"
+    style={`background-image:url('${src}'); height:${height};`}
+  >
+    <!-- subtle overlay to match tone of live site -->
+    <div class="absolute inset-0 bg-black/20"></div>
+  </div>
+</section>

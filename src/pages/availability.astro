@@ -1,0 +1,234 @@
+---
+// src/pages/availability.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NavBar from '@/sections/NavBar.astro';
+import SiteFooter from '@/sections/SiteFooter.astro';
+
+
+const title = 'Availability & Inquiries';
+const blocked = [
+  ['2025-07-03','2025-07-07'],
+  ['2025-07-19','2025-07-21'],
+  ['2025-08-08','2025-08-12'],
+  ['2025-09-12','2025-09-16'],
+];
+---
+
+<BaseLayout title={title} description="Pick dates, add guests, and send a booking request.">
+  <NavBar />
+
+  <section class="mx-auto max-w-6xl px-4 py-16">
+    <h1 class="font-serif text-[34px] md:text-[40px] font-bold leading-tight">{title}</h1>
+    <p class="mt-2 text-[16px] leading-[1.7] text-neutral-700">
+      Pick your dates and party size—then send a request. We’ll confirm by email (demo mode; no card required).
+    </p>
+
+    <div class="mt-8 grid gap-8 md:grid-cols-[1.2fr,.8fr]">
+      <!-- Range picker -->
+      <div class="rounded-2xl border border-black/10 bg-white p-4 md:p-6">
+        <div class="flex items-center justify-between">
+          <div class="text-sm font-semibold tracking-wide text-neutral-500 uppercase">Select Dates</div>
+          <div class="flex items-center gap-2">
+            <button type="button" class="navBtn" data-dir="-1" aria-label="Previous month">‹</button>
+            <button type="button" class="navBtn" data-dir="+1" aria-label="Next month">›</button>
+          </div>
+        </div>
+
+        <div id="calwrap" class="mt-3 grid gap-6 md:grid-cols-2"></div>
+
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          <div class="rounded-lg border border-black/10 p-3">
+            <div class="text-xs uppercase tracking-wide text-neutral-500">Check-in</div>
+            <div id="sumIn" class="mt-1 text-[15px] font-medium">—</div>
+          </div>
+          <div class="rounded-lg border border-black/10 p-3">
+            <div class="text-xs uppercase tracking-wide text-neutral-500">Check-out</div>
+            <div id="sumOut" class="mt-1 text-[15px] font-medium">—</div>
+          </div>
+          <div class="rounded-lg border border-black/10 p-3">
+            <div class="text-xs uppercase tracking-wide text-neutral-500">Nights</div>
+            <div id="sumN" class="mt-1 text-[15px] font-medium">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: details -->
+      <div class="rounded-2xl border border-black/10 bg-white p-4 md:p-6">
+        <div>
+          <label class="block text-sm font-semibold text-neutral-700">Guests</label>
+          <div class="mt-2 flex items-center gap-3">
+            <input id="guests" type="number" min="1" max="35" value="8"
+                   class="w-24 rounded-md border border-black/10 px-3 py-2 text-[15px] focus:border-black/20 outline-none" />
+            <span class="text-sm text-neutral-500">Max normally ~25–35 across cottages.</span>
+          </div>
+        </div>
+
+        <div class="mt-5">
+          <label class="block text-sm font-semibold text-neutral-700">Message (optional)</label>
+          <textarea id="msg" rows="4"
+            class="mt-2 w-full rounded-md border border-black/10 px-3 py-2 text-[15px] focus:border-black/20 outline-none"
+            placeholder="Anything we should know? e.g., family reunion, preferred cottage(s)…"></textarea>
+        </div>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+          <button id="requestBtn" type="button"
+            class="inline-flex items-center justify-center rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed">
+            Request to Book
+          </button>
+          <a href="/contact"
+             class="inline-flex items-center justify-center rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-semibold hover:bg-neutral-50">
+            Contact Instead
+          </a>
+        </div>
+
+        <p class="mt-3 text-xs text-neutral-500">Demo only—final confirmation via email.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simple CSS (no Tailwind @apply here) -->
+  <style is:inline>
+    .navBtn{
+      display:grid; place-items:center; height:36px; width:36px; border-radius:9999px;
+      background:#f3f4f6; color:#374151;
+    }
+    .navBtn:hover{ background:#e5e7eb; }
+    .cal{ border:1px solid rgba(0,0,0,.1); border-radius:12px; padding:12px; }
+    .cal h3{ margin:0 0 8px; font-weight:600; font-size:14px; letter-spacing:.02em; color:#3f3f46; }
+    .dow{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; font-size:11px; color:#6b7280; }
+    .gridDays{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-top:4px; }
+    .d{ display:grid; place-items:center; height:36px; border-radius:8px; font-size:13px; }
+    .d.muted{ color:#a3a3a3; }
+    .d.blocked{ background:#f3f4f6; color:#9ca3af; text-decoration:line-through; cursor:not-allowed; }
+    .d.free{ cursor:pointer; }
+    .d.free:hover{ background:#f5f5f5; }
+    .d.in, .d.out{ background:#171717; color:#fff; }
+    .d.range{ background:rgba(0,0,0,.06); }
+  </style>
+
+  <script is:inline>
+  (function(){
+    const blockedRanges = ({JSON.stringify(blocked)});
+    const calwrap = document.getElementById('calwrap');
+    const sumIn  = document.getElementById('sumIn');
+    const sumOut = document.getElementById('sumOut');
+    const sumN   = document.getElementById('sumN');
+    const guests = document.getElementById('guests');
+    const msg    = document.getElementById('msg');
+    const requestBtn = document.getElementById('requestBtn');
+
+    const fmt = (d)=> d ? d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '—';
+    const ymd = (d)=> d.toISOString().slice(0,10);
+    const addDays=(d,n)=> new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
+    const inRange=(d,a,b)=> d>=a && d<b;
+
+    const blockedSet = new Set();
+    for(const [a,b] of blockedRanges){
+      const A = new Date(a), B = new Date(b);
+      for(let t=new Date(A); t<B; t=addDays(t,1)) blockedSet.add(ymd(t));
+    }
+
+    let anchor = null, start = null, end = null;
+    let viewMonth = new Date(); viewMonth.setDate(1);
+
+    function draw(){
+      calwrap.innerHTML = '';
+      for(let i=0;i<2;i++){
+        const m = new Date(viewMonth.getFullYear(), viewMonth.getMonth()+i, 1);
+        calwrap.appendChild(renderMonth(m));
+      }
+      updateSummary();
+      requestBtn.disabled = !(start && end);
+    }
+
+    function renderMonth(first){
+      const wrap = document.createElement('div'); wrap.className='cal';
+      const title = first.toLocaleDateString(undefined,{month:'long', year:'numeric'});
+      wrap.innerHTML = `<h3>${title}</h3>
+        <div class="dow">
+          <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+        </div>
+        <div class="gridDays"></div>`;
+      const days = wrap.querySelector('.gridDays');
+
+      const startWeekday = first.getDay();
+      const daysInMonth  = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
+
+      for(let i=0;i<startWeekday;i++){
+        const d = document.createElement('div'); d.className='d muted'; d.textContent=''; days.appendChild(d);
+      }
+
+      for(let day=1; day<=daysInMonth; day++){
+        const cur = new Date(first.getFullYear(), first.getMonth(), day);
+        const key = ymd(cur);
+        const btn = document.createElement('button'); btn.type='button'; btn.className='d'; btn.textContent=String(day);
+
+        const isBlocked = blockedSet.has(key);
+        const isSel     = (start && ymd(start)===key) || (end && ymd(end)===key);
+        const isBetween = start && end && inRange(cur, start, end);
+
+        if(isBlocked) btn.classList.add('blocked'); else btn.classList.add('free');
+        if(isBetween) btn.classList.add('range');
+        if(start && ymd(start)===key) btn.classList.add('in');
+        if(end && ymd(end)===key) btn.classList.add('out');
+
+        btn.addEventListener('click',()=>pick(cur, isBlocked));
+        days.appendChild(btn);
+      }
+      return wrap;
+    }
+
+    function pick(day, isBlocked){
+      if(isBlocked) return;
+      if(!anchor){ anchor = day; start = day; end = null; draw(); return; }
+
+      if(day < anchor){
+        start = day; end = addDays(anchor,1);
+      }else if(day > anchor){
+        const tentativeEnd = addDays(day,1);
+        for(let t=new Date(start); t<tentativeEnd; t=addDays(t,1)){
+          if(blockedSet.has(ymd(t))){ alert('Those dates intersect existing bookings. Please choose another range.'); return; }
+        }
+        end = tentativeEnd;
+      }else{
+        const tentativeEnd = addDays(day,1);
+        if(blockedSet.has(ymd(day)) || blockedSet.has(ymd(tentativeEnd))){
+          alert('That night is not available.'); return;
+        }
+        start = day; end = tentativeEnd;
+      }
+      anchor = null; draw();
+    }
+
+    const nights=()=> start && end ? Math.round((end-start)/86400000) : 0;
+
+    function updateSummary(){
+      sumIn.textContent  = fmt(start);
+      sumOut.textContent = fmt(end);
+      sumN.textContent   = nights() || '—';
+    }
+
+    document.querySelectorAll('.navBtn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const dir = Number(b.dataset.dir);
+        viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()+dir, 1);
+        draw();
+      });
+    });
+
+    requestBtn.addEventListener('click', ()=>{
+      if(!(start && end)) return;
+      const qs = new URLSearchParams({
+        check_in: ymd(start),
+        check_out: ymd(end),
+        guests: String(guests.value || 1),
+        note: (msg.value || '').slice(0,500),
+      });
+      window.location.href = `/contact?${qs.toString()}`;
+    });
+
+    draw();
+  })();
+  </script>
+  <SiteFooter />
+</BaseLayout>

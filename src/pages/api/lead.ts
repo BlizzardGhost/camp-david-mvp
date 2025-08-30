@@ -1,0 +1,1 @@
+export const POST = async ({ request }) => { const body = await request.json(); console.log('LEAD', body); return new Response(JSON.stringify({ ok:true }), { headers:{'content-type':'application/json'} }); };

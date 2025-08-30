@@ -1,0 +1,94 @@
+---
+const jsonUrl = '/vr-tours/outside/wpvr_1317.json';
+const title = 'Camp David Outside – 360° Tour';
+
+// helper to strip HTML tags (for hotspot hover text)
+function stripHTML(str = '') {
+  return str.replace(/<[^>]*>/g, '').trim();
+}
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{title}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet"
+        href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css" />
+  <script src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js"></script>
+  <style>
+    html, body { height:100%; margin:0; background:#000; }
+    #pano { width:100%; height:100%; }
+    .pnlm-hotspot-tooltip { background: rgba(0,0,0,.7); color:#fff; padding:.25rem .5rem; border-radius:.5rem; }
+  </style>
+</head>
+<body>
+  <div id="pano" aria-label={title}></div>
+
+  <script>
+  (async () => {
+    try {
+      const data = await fetch({jsonUrl: {jsonUrl}}).then(r => r.json());
+
+      // WPVR shape (from your paste):
+      // { title, data: { defaultscene, panodata: { 'scene-list': { '1': {...}, '2': {...} } } } }
+      const list = (data?.data?.panodata?.['scene-list']) || {};
+      const defaultScene = data?.data?.defaultscene;
+
+      const scenes = {};
+      let firstSceneId = null;
+
+      for (const key of Object.keys(list)) {
+        const s = list[key];
+        const id = s['scene-id'];
+        if (!firstSceneId) firstSceneId = id;
+
+        // source image (absolute URL from WPVR export)
+        const img = s['scene-attachment-url'];
+
+        // map hotspots
+        const hsRaw = Array.isArray(s['hotspot-list']) ? s['hotspot-list'] : [];
+        const hotSpots = hsRaw.map(h => {
+          const pitch = parseFloat(String(h['hotspot-pitch']||'0'));
+          const yaw   = parseFloat(String(h['hotspot-yaw']||'0'));
+          const type  = h['hotspot-type'] === 'scene' ? 'scene' : 'info';
+          const sceneId = h['hotspot-scene'] || undefined;
+          const text = stripHTML(h['hotspot-hover'] || h['hotspot-title'] || '');
+          const URL  = h['hotspot-url'] || undefined;
+
+          const base = { pitch, yaw };
+          return (type === 'scene')
+            ? { ...base, type: 'scene', sceneId, text: text || sceneId || '' }
+            : { ...base, type: 'info', text, URL };
+        });
+
+        scenes[id] = {
+          type: 'equirectangular',
+          panorama: img,        // use exported absolute URL
+          autoLoad: true,
+          hfov: 100,
+          hotSpots
+        };
+      }
+
+      // pick default scene from JSON if present, else first found
+      const start = defaultScene && scenes[defaultScene] ? defaultScene : firstSceneId;
+
+      // @ts-ignore
+      pannellum.viewer('pano', {
+        default: {
+          firstScene: start,
+          autoLoad: true,
+          sceneFadeDuration: parseInt(data?.data?.scenefadeduration || '500', 10) || 500
+        },
+        scenes
+      });
+    } catch (err) {
+      console.error(err);
+      const el = document.getElementById('pano');
+      el.innerHTML = '<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%">Unable to load tour.</div>';
+    }
+  })();
+  </script>
+</body>
+</html>

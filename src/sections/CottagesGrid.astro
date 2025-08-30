@@ -1,0 +1,58 @@
+---
+// src/sections/CottagesGrid.astro
+import { cottages } from '@/data/cottages';
+import LakefrontModal from '@/sections/LakefrontModal.astro';
+---
+
+<section class="bg-neutral-900 py-12 text-white">
+  <div class="mx-auto max-w-6xl px-4">
+    <h3 class="mb-8 font-serif text-[28px] md:text-[32px] font-bold">Cottages</h3>
+
+    <div id="CottagesGrid" class="grid gap-6 md:grid-cols-4">
+      {cottages.map((c) => (
+        <article class="rounded-2xl bg-white/10 p-3 ring-1 ring-white/10 transition hover:bg-white/15">
+          <img
+            class="aspect-[4/3] w-full rounded-xl object-cover"
+            src={c.img}
+            alt={c.name}
+            width="800"
+            height="600"
+            loading="lazy"
+          />
+
+          <div class="mt-3">
+            <div class="font-semibold text-[17px]">{c.name}</div>
+
+            <ul class="mt-1 text-[13px] opacity-85 space-y-1">
+              <li class="inline-flex items-center gap-2">
+                <iconify-icon icon="mdi:account-group" width="16" height="16"></iconify-icon>
+                {c.guests} guests
+              </li>
+              <li class="inline-flex items-center gap-2">
+                <iconify-icon icon="mdi:bed-queen" width="16" height="16"></iconify-icon>
+                {c.beds} bedrooms
+              </li>
+              <li class="inline-flex items-center gap-2">
+                <iconify-icon icon="mdi:bathtub-outline" width="16" height="16"></iconify-icon>
+                {c.baths} bathroom
+              </li>
+            </ul>
+
+            <!-- All cards open Lakefront modal for now -->
+            <button
+              type="button"
+              data-open-modal="lakefrontModal"
+              class="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-900 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              <iconify-icon icon="mdi:panorama-variant-outline" width="16" height="16"></iconify-icon>
+              3D Tour
+            </button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Render the modal once, outside the grid -->
+<LakefrontModal />

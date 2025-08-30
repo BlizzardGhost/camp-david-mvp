@@ -1,0 +1,51 @@
+---
+const hero =
+  'https://www.campdavidct.com/wp-content/uploads/2022/06/Camp-David-Bantam-Lake-Morris-CT.jpg';
+const logo =
+  '/logo.png';
+---
+
+<section
+  class="relative isolate h-[90vh] min-h-[520px] w-full overflow-hidden"
+  aria-label="Camp David at Bantam Lake"
+>
+  <!-- Background -->
+  <div
+    id="hero-bg"
+    class="absolute inset-0 bg-cover bg-center will-change-transform"
+    style={`background-image:url(${hero});`}
+    aria-hidden="true"
+  ></div>
+
+  <!-- Subtle veil for contrast -->
+  <div class="absolute inset-0 bg-neutral-900/15" aria-hidden="true"></div>
+
+  <!-- Centered logo near the top -->
+  <img
+  src={logo}
+  alt="Camp David · Bantam Lake"
+  width="320"
+  height="100"
+  class="absolute left-1/2 top-6 md:top-8 z-10 -translate-x-1/2 drop-shadow-md w-[260px] md:w-[320px] h-auto"
+  loading="eager"
+  decoding="async"
+/>
+
+  <!-- Bottom gradient for legibility over water -->
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-neutral-900/45 to-transparent"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Gentle parallax (respects reduced motion) -->
+  <script is:inline>
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const bg = document.getElementById('hero-bg');
+      const onScroll = () => {
+        const y = window.scrollY * 0.18; // subtle
+        bg.style.transform = `translate3d(0, ${y}px, 0)`;
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+  </script>
+</section>

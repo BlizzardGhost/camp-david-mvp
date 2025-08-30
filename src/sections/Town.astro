@@ -1,0 +1,71 @@
+---
+// src/sections/Town.astro
+import SectionHeader from '@/components/SectionHeader.astro';
+
+const items = [
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Kayaking-in-Bantam-Lake-CT-768x506.jpg',
+    alt: 'Kayaking on Bantam Lake',
+    title: 'Bantam Lake',
+    desc: 'Enjoy kayaking, boating, and serene lake views year-round.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Litchfield-Race-CT-768x512.jpg',
+    alt: 'Litchfield Road Race',
+    title: 'Local Events',
+    desc: 'Experience vibrant community life with annual races and fairs.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Walking-in-the-Forest-of-Litchfield-CT-768x512.jpg',
+    alt: 'Walking in the Forest',
+    title: 'Scenic Trails',
+    desc: 'Walk or hike the beautiful forest paths of Litchfield County.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Sunset-at-Camp-David-Bantam-Lake-CT-768x512.jpg',
+    alt: 'Sunset over Bantam Lake',
+    title: 'Sunset Views',
+    desc: 'Unforgettable sunsets over Bantam Lake to end the day.',
+  },
+];
+---
+
+<section class="py-14 bg-neutral-50">
+<div class="mx-auto max-w-6xl px-4">
+  <!-- Title -->
+  <SectionHeader
+    kicker="Litchfield County"
+    title="Morris, a Historic Town"
+    align="left"
+    dense={true}
+  />
+
+  <!-- Descriptive text -->
+  <p class="mt-8 text-[16px] leading-[1.7] text-neutral-700">
+    This historic area dates back to the early 1700s and was the home of our
+    nation’s first law school. Today, Litchfield County offers a rich mix of
+    cultural attractions, scenic drives, wineries, spas, a nature museum, fine
+    dining, and the best ice cream from a nationally renowned local dairy farm.
+  </p>
+
+  <!-- 4-up gallery -->
+  <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {items.map((it) => (
+      <figure class="group">
+        <img
+          class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-[1.01]"
+          src={it.src}
+          alt={it.alt}
+          loading="lazy"
+          width="768"
+          height="576"
+        />
+        <figcaption class="mt-3">
+          <div class="font-semibold text-[15px] text-neutral-900">{it.title}</div>
+          <p class="mt-1 text-[14px] leading-6 text-neutral-600">{it.desc}</p>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+  </div>
+</section>

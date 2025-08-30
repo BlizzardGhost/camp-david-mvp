@@ -1,0 +1,53 @@
+---
+import SectionHeader from '@/components/SectionHeader.astro';
+
+const photos = [
+  'https://www.campdavidct.com/wp-content/uploads/2022/07/Wedding-At-Camp-David-Bantam-Lake-CT-768x512.jpg',
+  'https://www.campdavidct.com/wp-content/uploads/2022/07/Reception-at-Camp-David-Bantam-Lake-CT-768x512.jpg',
+  'https://www.campdavidct.com/wp-content/uploads/2022/07/Dock-Lakeview-at-Camp-David-CT-768x512.jpg',
+  'https://www.campdavidct.com/wp-content/uploads/2022/08/Water-sports-fun-Bantam-Lake-Camp-David-768x512.jpg',
+];
+---
+
+<section class="bg-neutral-900 py-20 text-white">
+  <div class="mx-auto max-w-6xl px-4 md:px-6">
+    <div class="grid items-center gap-10 md:grid-cols-[1.2fr,1fr]">
+      <!-- 2×2 photo grid -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        {photos.map((src) => (
+          <img
+            src={src}
+            alt="Camp David events"
+            width="768"
+            height="512"
+            loading="lazy"
+            class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-white/10 shadow-sm transition-transform duration-300 hover:scale-[1.01]"
+          />
+        ))}
+      </div>
+
+      <!-- Copy -->
+      <div class="md:pl-4">
+        <SectionHeader
+          kicker="Special Events"
+          title="Family Reunions, Weddings, Parties, Seminars and Much More!"
+          align="left"
+          dense={true}
+        />
+        <p class="mt-6 text-[16px] leading-[1.8] text-white/85">
+          We’re an ideal setting for corporate off-sites, church retreats, business
+          meetings, weddings, family reunions, and special celebrations — with our
+          lakeside grounds, flexible indoor spaces, and activities on beautiful Bantam Lake.
+        </p>
+
+        <a
+          href="/weddings-special-events/"
+          class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-neutral-900 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        >
+          Read more
+          <svg viewBox="0 0 24 24" class="h-4 w-4"><path d="m10 6 1.41 1.41L8.83 10H20v2H8.83l2.58 2.59L10 16l-6-6z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,72 @@
+---
+// Optional wrapper. Put under: src/pages/vr-tours/lakefront.astro
+// If you use this route, change your iframe src to /vr-tours/lakefront
+const title = 'Lakefront – 3D Tour';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="https://unpkg.com/pannellum/build/pannellum.css" />
+    <style>
+      html,body{height:100%;margin:0;background:#000}
+      #pano{width:100%;height:100%}
+      .scene-ui{position:fixed;left:12px;top:12px;z-index:10;background:rgba(0,0,0,.55);color:#fff;border-radius:10px;padding:8px 10px;font:500 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;backdrop-filter:blur(6px)}
+      .scene-ui select{margin-left:7px;padding:6px 8px;border-radius:8px;border:0;background:#fff;color:#111;font:inherit}
+    </style>
+  </head>
+  <body>
+    <div class="scene-ui">
+      Room:
+      <select id="sceneSelect" aria-label="Choose room">
+        <option value="LivingRoom">Living Room</option>
+        <option value="Kitchen">Kitchen</option>
+        <option value="Bathroom">Bathroom</option>
+        <option value="Bedroom">Bedroom</option>
+        <option value="Bedroom2">Bedroom 2</option>
+        <option value="Bedroom3">Bedroom 3</option>
+        <option value="Entrance2">Entrance</option>
+        <option value="Hallway">Hallway</option>
+        <option value="RoomHallway">Room Hallway</option>
+      </select>
+    </div>
+
+    <div id="pano" role="application" aria-label="Lakefront 3D tour"></div>
+
+    <script src="https://unpkg.com/pannellum/build/pannellum.js"></script>
+    <script is:inline>
+      const scenes = {
+        LivingRoom:  { title: 'Living Room',  panorama: '/vr-tours/lakefront/LivingRoom.jpg'  },
+        Kitchen:     { title: 'Kitchen',      panorama: '/vr-tours/lakefront/Kitchen.jpg'     },
+        Bathroom:    { title: 'Bathroom',     panorama: '/vr-tours/lakefront/Bathroom.jpg'    },
+        Bedroom:     { title: 'Bedroom',      panorama: '/vr-tours/lakefront/Bedroom.jpg'     },
+        Bedroom2:    { title: 'Bedroom 2',    panorama: '/vr-tours/lakefront/Bedroom2.jpg'    },
+        Bedroom3:    { title: 'Bedroom 3',    panorama: '/vr-tours/lakefront/Bedroom3.jpg'    },
+        Entrance2:   { title: 'Entrance',     panorama: '/vr-tours/lakefront/Entrance2.jpg'   },
+        Hallway:     { title: 'Hallway',      panorama: '/vr-tours/lakefront/Hallway.jpg'     },
+        RoomHallway: { title: 'Room Hallway', panorama: '/vr-tours/lakefront/RoomHallway.jpg' },
+      };
+
+      const config = {
+        default: { firstScene: 'LivingRoom', autoLoad: true, showControls: true, hfov: 105, minHfov: 60, maxHfov: 120 },
+        scenes: {}
+      };
+
+      Object.entries(scenes).forEach(([id, s]) => {
+        config.scenes[id] = { type: 'equirectangular', panorama: s.panorama, title: s.title, pitch: 0, yaw: 0, hfov: 105 };
+      });
+
+      const viewer = pannellum.viewer('pano', config);
+
+      const select = document.getElementById('sceneSelect');
+      select.addEventListener('change', () => viewer.loadScene(select.value));
+
+      const initial = (location.hash || '').replace('#', '');
+      if (initial && scenes[initial]) {
+        select.value = initial;
+        viewer.loadScene(initial);
+      }
+    </script>
+  </body>
+</html>

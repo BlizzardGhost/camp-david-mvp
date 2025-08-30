@@ -1,0 +1,76 @@
+---
+import '../styles/globals.css';
+
+const {
+  title = 'Camp David – Bantam Lake, CT',
+  description = 'Modern & delightful cottages facing Bantam Lake.',
+  canonical,
+} = Astro.props;
+
+// define once here (server-side)
+const DEV = import.meta.env.DEV;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind:wght@400;700&family=Roboto:wght@500;600&family=Roboto+Slab:wght@400&family=Yeseva+One&display=swap"
+      rel="stylesheet"
+    >
+
+    <style>
+      :root { --cd-primary:#2A2A2A; --cd-secondary:#A6A6A6; --cd-text:#8B8B8B; --cd-accent:#B10F2E; }
+      body { font-family:"Hind",system-ui,sans-serif; line-height:1.5; }
+      h1,h2 { font-family:"Yeseva One",serif; letter-spacing:-0.01em; line-height:1.1; }
+      h3,h4 { font-family:"Hind",system-ui,sans-serif; letter-spacing:0.04em; }
+      .ui-font { font-family:"Roboto",system-ui,sans-serif; font-weight:600; }
+    </style>
+
+    <!-- Pannellum globally (once) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  </head>
+  <body class="min-h-screen bg-white text-neutral-800 font-sans" data-dev={String(DEV)}>
+    <a class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 p-2 bg-white" href="#main">Skip to content</a>
+
+    <slot name="header" />
+    <main id="main"><slot /></main>
+    <slot name="footer" />
+
+    <!-- One (and only) opener for any [data-open-modal="id"] -->
+    <script is:inline>
+      document.addEventListener('click', function (e) {
+        var target = e.target;
+        var btn = target && target.closest ? target.closest('[data-open-modal]') : null;
+        if (!btn) return;
+
+        var id = btn.getAttribute('data-open-modal') || '';
+
+        // Dev-only console noise without server-side interpolation
+        if (document.body && document.body.dataset.dev === 'true' && console && console.debug) {
+          console.debug('[open-modal click]', id);
+        }
+
+        // Prevent default navigation if it's an anchor acting as a button
+        if (btn.tagName === 'A') e.preventDefault();
+
+        window.dispatchEvent(new CustomEvent('cd:open-cottage', { detail: id }));
+      });
+    </script>
+
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  </body>
+</html>

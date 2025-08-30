@@ -1,0 +1,60 @@
+---
+/**
+ * Consistent section header used across the site.
+ * - Eyebrow (kicker) + large display title + divider
+ * - Minimal tweaks only: items-start for left align + className hook
+ * Props:
+ *  - kicker?: string
+ *  - title: string
+ *  - as?: 'h1' | 'h2'  (default 'h2')
+ *  - align?: 'left' | 'center' (default 'left')
+ *  - dense?: boolean   (default false)
+ *  - divider?: boolean (default true)
+ *  - className?: string (extra classes on the wrapper)
+ */
+interface Props {
+  kicker?: string;
+  title: string;
+  as?: 'h1' | 'h2';
+  align?: 'left' | 'center';
+  dense?: boolean;
+  divider?: boolean;
+  className?: string;
+}
+const {
+  kicker,
+  title,
+  as = 'h2',
+  align = 'left',
+  dense = false,
+  divider = true,
+  className = '',
+} = Astro.props;
+
+const alignCls = align === 'center' ? 'text-center items-center' : 'text-left items-start';
+const topSpace = dense ? 'mt-1' : 'mt-2';
+const TitleTag = as;
+---
+
+<div class={`flex flex-col ${alignCls} ${className}`}>
+  {kicker && (
+    <p class="text-xs md:text-sm uppercase tracking-[0.25em] text-neutral-500">
+      {kicker}
+    </p>
+  )}
+
+  <TitleTag
+  class={`leading-[1.2] font-normal ${topSpace}
+    ${as === 'h1'
+      ? 'text-[32px] md:text-[48px]'  // H1 slightly smaller but still a hero
+      : 'text-[24px] md:text-[32px]'} // H2 comfortable, not oversized
+  `}
+  style="font-family:'Yeseva One', serif; letter-spacing:-0.01em;"
+>
+  {title}
+</TitleTag>
+
+  {divider && (
+    <div class={`h-[3px] w-24 bg-neutral-800 ${align === 'center' ? 'mx-auto' : ''} mt-4`}></div>
+  )}
+</div>

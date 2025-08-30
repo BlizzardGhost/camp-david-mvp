@@ -1,0 +1,34 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/sections/Hero.astro';
+import NavBar from '@/sections/NavBar.astro';
+import Intro from '@/sections/Intro.astro';
+import StatementBand from '@/sections/StatementBand.astro';
+import Feature from '@/sections/Feature.astro';
+import CottagesGrid from '@/sections/CottagesGrid.astro';
+import PartyRoom from '@/sections/PartyRoom.astro';
+import ThingsToDo from '@/sections/ThingsToDo.astro';
+import Town from '@/sections/Town.astro';
+import Events from '@/sections/Events.astro';
+import FAQ from '@/sections/FAQ.astro';
+import ContactBand from '@/sections/ContactBand.astro';
+import SiteFooter from '@/sections/SiteFooter.astro';
+import ParallaxDivider from '@/sections/ParallaxDivider.astro';
+---
+<BaseLayout title="Camp David – Bantam Lake, CT">
+  <Hero />
+  <NavBar overHero={true} />
+  <Intro />
+  <StatementBand />
+  <ParallaxDivider src="https://www.campdavidct.com/wp-content/uploads/2022/07/Lakeview.jpg" />
+  <Feature />
+  <CottagesGrid />
+  <PartyRoom />
+  <ThingsToDo />
+  <Town />
+  <Events />
+  <FAQ />
+  <ContactBand />
+  <SiteFooter />
+</BaseLayout>
+

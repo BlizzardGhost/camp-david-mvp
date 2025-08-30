@@ -1,0 +1,143 @@
+---
+import SectionHeader from '@/components/SectionHeader.astro';
+
+const overlayImg =
+  'https://www.campdavidct.com/wp-content/uploads/2022/06/Lakefront-12-scaled.jpg';
+
+const vimeoId = '739042266';
+const VIMEO_SRC =
+  `https://player.vimeo.com/video/${vimeoId}?autoplay=1&autopause=0&badge=0&title=0&byline=0&portrait=0&dnt=1`;
+---
+
+<section class="py-14 bg-neutral-50">
+  <div class="mx-auto max-w-6xl px-4">
+  <!-- Vertically center the two columns on md+ -->
+  <div class="grid gap-8 md:grid-cols-2 md:items-center">
+    <!-- Left: Copy -->
+    <div>
+    <p class="mb-2 text-sm uppercase tracking-[0.25em] text-neutral-500">
+    A Magnificent Room for Gatherings
+  </p>
+      <SectionHeader title="The Lakefront Party Room" align="left" dense={true} />
+      <p class="mt-2 text-[18px] leading-8 text-neutral-700">
+        Gather in our flexible community room… (seating up to 50).
+      </p>
+
+      <a
+        href="/availability"
+        class="mt-6 inline-block rounded-full border px-4 py-2 hover:bg-neutral-200"
+      >
+        Check Availability
+      </a>
+    </div>
+
+    <!-- Right: Video poster with play -->
+    <figure class="order-2">
+      <button
+        id="partyPlay"
+        type="button"
+        class="group relative block w-full overflow-hidden rounded-xl shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+        aria-haspopup="dialog"
+        aria-controls="partyModal"
+        aria-label="Play party room video"
+      >
+        <img
+          src={overlayImg}
+          alt="Lakefront Party Room"
+          class="aspect-[16/9] block w-full object-cover"
+          width="1280"
+          height="720"
+          loading="lazy"
+        />
+        <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
+          <span
+            class="h-24 w-24 rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 grid place-items-center transition group-hover:bg-white"
+          >
+            <svg viewBox="0 0 24 24" class="h-10 w-10 fill-neutral-900">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </span>
+        </span>
+      </button>
+      <figcaption class="sr-only">Tap to play video</figcaption>
+    </figure>
+  </div>
+
+  <!-- Modal -->
+  <div
+    id="partyModal"
+    class="fixed inset-0 z-50 hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="partyModalTitle"
+    data-vimeo-src={VIMEO_SRC}
+  >
+    <div id="partyBackdrop" class="absolute inset-0 bg-black/70"></div>
+
+    <div
+      class="relative mx-auto flex h-full max-w-5xl items-center px-4"
+      aria-describedby="partyModalDesc"
+    >
+      <div class="relative w-full overflow-hidden rounded-xl bg-black shadow-lg">
+        <button
+          id="partyClose"
+          type="button"
+          class="absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          aria-label="Close video"
+        >
+          <svg viewBox="0 0 24 24" class="h-5 w-5">
+            <path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3L16.9 4.3z"/>
+          </svg>
+        </button>
+
+        <div class="aspect-video w-full">
+          <iframe
+            id="partyPlayer"
+            class="h-full w-full"
+            title="Lakefront Party Room"
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="partyModalTitle" class="sr-only">Lakefront Party Room</h2>
+    <p id="partyModalDesc" class="sr-only">Modal window with Vimeo player.</p>
+  </div>
+    </div>
+
+  <script is:inline>
+    (function () {
+      var modal    = document.getElementById('partyModal');
+      var backdrop = document.getElementById('partyBackdrop');
+      var openBtn  = document.getElementById('partyPlay');
+      var closeBtn = document.getElementById('partyClose');
+      var player   = document.getElementById('partyPlayer');
+      var SRC      = (modal && modal.dataset && modal.dataset.vimeoSrc) || '';
+      var lastFocus = null;
+
+      function openModal() {
+        lastFocus = document.activeElement;
+        modal.classList.remove('hidden');
+        if (SRC) player.src = SRC;   // autoplay handled via query
+        closeBtn.focus();
+        document.addEventListener('keydown', onKeydown);
+      }
+      function closeModal() {
+        modal.classList.add('hidden');
+        player.src = '';             // stop/unload
+        document.removeEventListener('keydown', onKeydown);
+        if (lastFocus) lastFocus.focus();
+      }
+      function onKeydown(e) {
+        if (e.key === 'Escape') closeModal();
+      }
+
+      openBtn && openBtn.addEventListener('click', openModal);
+      closeBtn && closeBtn.addEventListener('click', closeModal);
+      backdrop && backdrop.addEventListener('click', closeModal);
+    })();
+  </script>
+</section>

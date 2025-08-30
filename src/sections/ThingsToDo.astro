@@ -1,0 +1,71 @@
+---
+// src/sections/ThingsToDo.astro
+import SectionHeader from '@/components/SectionHeader.astro';
+
+const items = [
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Litchfield-Morris-CT-768x576.jpg',
+    alt: 'Downtown Litchfield & Morris, CT',
+    title: 'Litchfield Village',
+    desc: 'Shops, cafés, bakeries, galleries — all within minutes.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Arethusa-A-Mano-Ice-Cream-Bantam-CT-768x576.jpg',
+    alt: 'Arethusa a Mano in Bantam',
+    title: 'Arethusa a Mano',
+    desc: 'Legendary ice cream and farm dairy from local makers.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/White-Memorial-Conservation-Center-Litchfield-768x576.jpg',
+    alt: 'White Memorial Conservation Center',
+    title: 'White Memorial',
+    desc: '944-acre sanctuary with 35 miles of scenic trails.',
+  },
+  {
+    src: 'https://www.campdavidct.com/wp-content/uploads/2022/07/Sandy-Beach-Bantam-Lake-CT-Optimized-768x577.jpg',
+    alt: 'Sandy Beach at Bantam Lake',
+    title: 'Sandy Beach',
+    desc: 'Swim, sun, and play on Bantam Lake’s favorite beach.',
+  },
+];
+---
+
+<section class="mx-auto max-w-6xl px-4 py-14">
+  <!-- Title above the images -->
+  <SectionHeader
+    kicker="Things to Do"
+    title="Exploring the Neighborhood"
+    align="left"
+    dense={true}
+  />
+
+  <!-- Short descriptive copy under the gallery -->
+  <p class="mt-8 text-[16px] leading-[1.7] text-neutral-700">
+    The town of Morris and Bantam Lake are hidden gems just minutes from
+    Litchfield Village — great restaurants, an art cinema, artisan bakeries,
+    and what many consider the best ice cream in the world. Trails and nature
+    abound thanks to the White Memorial Foundation’s 944-acre lake area and 35
+    miles of paths.
+  </p>
+
+  <!-- 4-up gallery on desktop, 2-up on small screens -->
+  <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {items.map((it) => (
+      <figure class="group">
+        <img
+          class="aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-[1.01]"
+          src={it.src}
+          alt={it.alt}
+          loading="lazy"
+          width="768"
+          height="576"
+        />
+        <figcaption class="mt-3">
+          <div class="font-semibold text-[15px] text-neutral-900">{it.title}</div>
+          <p class="mt-1 text-[14px] leading-6 text-neutral-600">{it.desc}</p>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+
+</section>

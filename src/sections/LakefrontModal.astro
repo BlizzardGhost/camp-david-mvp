@@ -1,0 +1,73 @@
+---
+/**
+ * Lakefront cottage → wraps CottageModal with a stable ID and
+ * the correct local assets under /public/vr-tours/lakefront/.
+ */
+import CottageModal from '@/sections/CottageModal.astro';
+
+const id = 'lakefrontModal';
+
+// Panos (equirectangular JPGs) that exist in /public/vr-tours/lakefront
+const scenes = [
+  { id: 'Entrance2',   src: '/vr-tours/lakefront/Entrance2.jpg' },
+  { id: 'Bedroom',     src: '/vr-tours/lakefront/Bedroom.jpg' },
+  { id: 'Hallway',     src: '/vr-tours/lakefront/Hallway.jpg' },
+  { id: 'RoomHallway', src: '/vr-tours/lakefront/RoomHallway.jpg' },
+  { id: 'LivingRoom',  src: '/vr-tours/lakefront/LivingRoom.jpg' },
+  { id: 'Bathroom',    src: '/vr-tours/lakefront/Bathroom.jpg' },
+  { id: 'Bedroom2',    src: '/vr-tours/lakefront/Bedroom2.jpg' },
+  { id: 'Bedroom3',    src: '/vr-tours/lakefront/Bedroom3.jpg' },
+  // Start here on open (yaw/pitch pulled from JSON so the view feels right)
+  { id: 'Kitchen',     src: '/vr-tours/lakefront/Kitchen.jpg', yaw: 84.67523442464355, pitch: -10.441776856266056 },
+];
+
+// Hotspot graph (from your wpvr_1427.json). Add/remove as you like.
+const links = [
+  // Entrance2
+  { from: 'Entrance2', to: 'Bedroom',     yaw: 151.9576177356169, pitch: -5.923031609604015 },
+  { from: 'Entrance2', to: 'Hallway',     yaw: 171.97348308909193, pitch: -27.265965212559944 },
+
+  // Bedroom
+  { from: 'Bedroom',   to: 'Entrance2',   yaw: -133.2920280954574, pitch: -12.125631923285809 },
+
+  // Hallway
+  { from: 'Hallway',   to: 'Entrance2',   yaw: -6.66071146649304,  pitch: -24.031693817064706 },
+  { from: 'Hallway',   to: 'LivingRoom',  yaw: -98.1716136331491,  pitch: 4.25546525583254 },
+  { from: 'Hallway',   to: 'Bedroom3',    yaw: 105.15187695452451, pitch: -19.803387187904868 },
+  { from: 'Hallway',   to: 'RoomHallway', yaw: 173.24967623219015, pitch: -29.861282742606374 },
+
+  // RoomHallway
+  { from: 'RoomHallway', to: 'Bedroom2',   yaw: 24.462935006330095,  pitch: -34.09006367975514 },
+  { from: 'RoomHallway', to: 'Bathroom',   yaw: 95.14716136194039,   pitch: -11.127508548152969 },
+  { from: 'RoomHallway', to: 'Kitchen',    yaw: 130.4521320652893,   pitch: -14.578176519698621 },
+  { from: 'RoomHallway', to: 'LivingRoom', yaw: -137.31267582048298, pitch: -21.957456153462754 },
+  { from: 'RoomHallway', to: 'Hallway',    yaw: -93.21044063888893,  pitch: -27.061330177478307 },
+
+  // LivingRoom
+  { from: 'LivingRoom', to: 'Entrance2',   yaw: 35.44055736069549,  pitch: -8.1014485168225 },
+  { from: 'LivingRoom', to: 'RoomHallway', yaw: 54.69687810658734,  pitch: -8.38043239235427 },
+  { from: 'LivingRoom', to: 'Hallway',     yaw: 74.02141922463525,  pitch: -20.914418637006584 },
+
+  // Bathroom
+  { from: 'Bathroom',   to: 'RoomHallway', yaw: -169.2256277255029, pitch: -43.53162175508484 },
+
+  // Bedroom2
+  { from: 'Bedroom2',   to: 'RoomHallway', yaw: 100.49413595286848, pitch: -32.762802091266 },
+
+  // Bedroom3
+  { from: 'Bedroom3',   to: 'Hallway',     yaw: 45.841217898238014, pitch: -12.328895112185169 },
+
+  // Kitchen
+  { from: 'Kitchen',    to: 'RoomHallway', yaw: 85.03658968097652,  pitch: -6.347246190705053 },
+];
+---
+
+<CottageModal
+  id={id}
+  title="Lakefront Cottage"
+  blurb="A newly renovated, charming 3-bedroom cottage steps away from beautiful and tranquil Bantam Lake. It’s perfect for families with young kids learning to swim. Spend the whole day relaxing and enjoying the view and you will never be bored."
+  ctaHref="/availability"
+  ctaLabel="Check Availability"
+  scenes={scenes}
+  links={links}
+/>

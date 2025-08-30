@@ -1,0 +1,139 @@
+---
+// src/sections/Feature.astro
+import SectionHeader from '@/components/SectionHeader.astro';
+
+const overlayImg =
+  'https://www.campdavidct.com/wp-content/uploads/2022/07/Delightful-Cottages-Facing-Bantam-Lake-Camp-David-CT.jpg';
+const vimeoId = '723781805';
+const VIMEO_SRC =
+  `https://player.vimeo.com/video/${vimeoId}?autoplay=1&title=0&byline=0&portrait=0&badge=0&dnt=1`;
+---
+
+<section class="mx-auto max-w-6xl px-4 md:px-6 py-20">
+  <div class="grid gap-10 md:grid-cols-2 items-center">
+    <!-- Media -->
+    <figure class="order-1">
+      <button
+        id="featurePlay"
+        type="button"
+        class="group relative block w-full overflow-hidden rounded-xl shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+        aria-haspopup="dialog"
+        aria-controls="featureModal"
+        aria-label="Play video about our cottages"
+      >
+        <img
+          src={overlayImg}
+          alt="Lakeside lawn and cottages at Camp David"
+          class="aspect-[16/9] md:aspect-[5/3] block w-full object-cover"
+          loading="lazy"
+        />
+        <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
+          <span class="h-24 w-24 rounded-full bg-white/85 backdrop-blur ring-1 ring-black/10 grid place-items-center transition group-hover:bg-white">
+            <svg viewBox="0 0 24 24" class="h-10 w-10 fill-neutral-900"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+        </span>
+      </button>
+      <figcaption class="sr-only">Tap to play video</figcaption>
+    </figure>
+
+    <!-- Copy -->
+    <div class="order-2">
+      <SectionHeader
+        kicker="Bantam Lake, Connecticut"
+        title="Modern and Delightful Cottages Facing the Lake"
+        align="left"
+        dense={true}
+      />
+      <div class="mt-6 space-y-5 text-[16px] leading-[1.6] text-neutral-700">
+        <p>Ideal for family reunions, vacations with kids, spiritual retreats, weddings, and other special events.</p>
+        <p>All guests enjoy free use of kayaks, inflatables, outdoor grills, fire pits, and exclusive access to our 100-foot lakeshore and dock.</p>
+        <p>While we prefer to rent the entire property for family reunions and other special events, we may be able to take reservations for individual cottages, especially from May to mid-June and after mid-September.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div
+    id="featureModal"
+    class="fixed inset-0 z-50 hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="featureModalTitle"
+    data-vimeo-src={VIMEO_SRC}
+  >
+    <div id="featureBackdrop" class="absolute inset-0 bg-black/70"></div>
+    <div class="relative mx-auto flex h-full max-w-5xl items-center px-4" aria-describedby="featureModalDesc">
+      <div class="relative w-full overflow-hidden rounded-xl bg-black shadow-lg">
+        <button
+          id="featureClose"
+          type="button"
+          class="absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          aria-label="Close video">
+          <svg viewBox="0 0 24 24" class="h-5 w-5"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3L16.9 4.3z"/></svg>
+        </button>
+
+        <div class="aspect-video w-full">
+          <iframe
+            id="featurePlayer"
+            class="h-full w-full"
+            title="Camp David · Lakefront video"
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="featureModalTitle" class="sr-only">Camp David video</h2>
+    <p id="featureModalDesc" class="sr-only">Modal window with Vimeo player.</p>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const modal = document.getElementById('featureModal');
+      const backdrop = document.getElementById('featureBackdrop');
+      const openBtn = document.getElementById('featurePlay');
+      const closeBtn = document.getElementById('featureClose');
+      const player = document.getElementById('featurePlayer');
+      const SRC = modal?.dataset?.vimeoSrc || ''; // ✅ read from data-attr
+      let lastFocus = null;
+
+      function openModal() {
+        lastFocus = document.activeElement;
+        modal.classList.remove('hidden');
+        if (SRC) player.src = SRC;      // mount URL when opened
+        closeBtn.focus();
+        document.addEventListener('keydown', onKeydown);
+        document.addEventListener('focus', keepFocus, true);
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        player.src = '';                 // stop video/unload
+        document.removeEventListener('keydown', onKeydown);
+        document.removeEventListener('focus', keepFocus, true);
+        if (lastFocus) lastFocus.focus();
+      }
+
+      function onKeydown(e) {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Tab') {
+          const f = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          const first = f[0], last = f[f.length - 1];
+          if (!first || !last) return;
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+
+      function keepFocus(e) {
+        if (!modal.contains(e.target)) { e.stopPropagation(); closeBtn.focus(); }
+      }
+
+      openBtn?.addEventListener('click', openModal);
+      closeBtn?.addEventListener('click', closeModal);
+      backdrop?.addEventListener('click', closeModal);
+    })();
+  </script>
+</section>

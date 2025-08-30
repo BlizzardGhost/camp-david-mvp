@@ -1,0 +1,193 @@
+---
+interface Scene { id: string; src: string; yaw?: number; pitch?: number }
+interface Link  { from: string; to: string; yaw: number; pitch: number }
+
+const {
+  id,
+  title,
+  blurb,
+  ctaHref = '/availability',
+  ctaLabel = 'Check Availability',
+  scenes = [],
+  links = [],
+} = Astro.props;
+
+const firstScene = scenes[0]?.id ?? 'scene-1';
+---
+
+<div
+  id={id}
+  class="fixed inset-0 z-50 hidden"
+  data-scenes={JSON.stringify(scenes)}
+  data-links={JSON.stringify(links)}
+  data-first={firstScene}
+>
+  <div class="absolute inset-0 bg-black/70" data-close></div>
+
+  <div class="relative mx-auto flex h-full max-w-6xl items-center px-4">
+    <div class="grid w-full gap-6 rounded-2xl bg-white p-4 shadow-lg md:grid-cols-[1fr,1.4fr] md:p-6">
+      <!-- Left: copy -->
+      <div class="flex flex-col">
+        <p class="mb-2 text-xs uppercase tracking-[0.25em] text-neutral-500">Camp David</p>
+        <h3 class="font-serif text-[28px] md:text-[36px] font-bold leading-tight">{title}</h3>
+        <div class="mt-3 h-[3px] w-24 bg-neutral-900"></div>
+        <p class="mt-4 text-[16px] leading-[1.7] text-neutral-700">{blurb}</p>
+        <a href={ctaHref} class="mt-6 inline-flex w-max items-center justify-center rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30">
+          {ctaLabel}
+        </a>
+      </div>
+
+      <!-- Right: header + viewer -->
+      <div class="relative">
+        <div class="mb-3 flex items-center justify-between">
+          <h4 class="text-[22px] md:text-[26px] font-serif font-bold">Take a 3D Tour</h4>
+          <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200" aria-label="Close" data-close>
+            <svg viewBox="0 0 24 24" class="h-5 w-5"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3L16.9 4.3z"/></svg>
+          </button>
+        </div>
+
+        <div class="relative overflow-hidden rounded-xl border border-black/10">
+          <div id={`${id}-viewer`} class="aspect-[16/9] w-full"></div>
+
+          <!-- Overlay next/prev -->
+          <button type="button" class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow hover:bg-white" aria-label="Previous" data-prev>
+            <svg viewBox="0 0 24 24" class="h-6 w-6"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </button>
+          <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow hover:bg-white" aria-label="Next" data-next>
+            <svg viewBox="0 0 24 24" class="h-6 w-6"><path d="m10 6 1.41 1.41L7.83 11H20v2H7.83l3.58 3.59L10 18l-6-6z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+  (function(){
+    // The script sits inside the modal wrapper, so grab that element directly.
+    var modal = document.currentScript && document.currentScript.closest('[id]');
+    if (!modal) { console.error('[CottageModal] missing modal wrapper'); return; }
+
+    var MODAL_ID = modal.id || '';
+    var viewerEl = document.getElementById(MODAL_ID + '-viewer');
+    var prevBtn  = modal.querySelector('[data-prev]');
+    var nextBtn  = modal.querySelector('[data-next]');
+
+    // Read runtime data from data-* attributes (avoids template interpolation in JS)
+    var SCENES = [];
+    var LINKS  = [];
+    var FIRST  = modal.getAttribute('data-first') || '';
+
+    try { SCENES = JSON.parse(modal.getAttribute('data-scenes') || '[]'); } catch (e) { console.error('[CottageModal] bad scenes JSON', e); }
+    try { LINKS  = JSON.parse(modal.getAttribute('data-links')  || '[]'); } catch (e) { console.error('[CottageModal] bad links JSON', e); }
+
+    var config = {
+      default: { firstScene: FIRST, autoLoad: true, sceneFadeDuration: 800, showZoomCtrl: true },
+      scenes: {}
+    };
+
+    for (var i = 0; i < SCENES.length; i++) {
+      var s = SCENES[i];
+      config.scenes[s.id] = {
+        type: 'equirectangular',
+        panorama: s.src,
+        pitch: s.pitch || 0,
+        yaw: s.yaw || 0,
+        hfov: 110,
+        hotSpots: []
+      };
+    }
+
+    for (var j = 0; j < LINKS.length; j++) {
+      var link = LINKS[j], from = config.scenes[link.from]; if (!from) continue;
+      from.hotSpots.push({
+        type: 'scene',
+        sceneId: link.to,
+        pitch: link.pitch,
+        yaw: link.yaw,
+        cssClass: 'cd-link-hotspot',
+        createTooltipFunc: function (el) {
+          var d = document.createElement('div'); d.className = 'cd-link-arrow'; el.appendChild(d);
+        }
+      });
+    }
+
+    var viewer = null;
+    var order  = SCENES.map(function (s) { return s.id; });
+
+    function ensureViewer() {
+      if (viewer) return true;
+      if (!window.pannellum) { console.error('[CottageModal] pannellum not loaded'); return false; }
+      viewer = pannellum.viewer(viewerEl, config);
+      return true;
+    }
+
+    function goto(dir) {
+      if (!ensureViewer()) return;
+      var current = viewer.getScene();
+      var idx = order.indexOf(current);
+      var next = order[(idx + dir + order.length) % order.length];
+      viewer.loadScene(next);
+    }
+
+    function open() {
+      modal.classList.remove('hidden');
+      setTimeout(ensureViewer, 0);
+      document.addEventListener('keydown', onKeydown);
+    }
+    function close() {
+      modal.classList.add('hidden');
+      document.removeEventListener('keydown', onKeydown);
+    }
+    function onKeydown(e){ if (e.key === 'Escape') close(); }
+
+    prevBtn && prevBtn.addEventListener('click', function(){ goto(-1); });
+    nextBtn && nextBtn.addEventListener('click', function(){ goto(+1); });
+    modal.querySelectorAll('[data-close]').forEach(function (c){ c.addEventListener('click', close); });
+
+    // --- Wiring (robust) ---
+    function handleOpen(ev){
+      var target = String(ev && ev.detail || '');
+      if (target === MODAL_ID) open();
+    }
+
+    window.addEventListener('cd:open-cottage', handleOpen);
+    document.addEventListener('cd:open-cottage', handleOpen);
+
+    function wireButtons(){
+      // Any element that has data-open-modal="thisId"
+      var btns = document.querySelectorAll('[data-open-modal="' + MODAL_ID + '"]');
+      for (var i=0;i<btns.length;i++){
+        btns[i].addEventListener('click', function(e){
+          e.preventDefault();
+          open();
+        });
+      }
+    }
+    if (document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireButtons);
+    } else {
+      wireButtons();
+    }
+
+    window.openCottageModal = function(targetId){
+      if (!targetId || targetId === MODAL_ID) open();
+    };
+    if (console && console.debug) console.debug('[CottageModal] wired', MODAL_ID);
+  })();
+  </script>
+
+  <style is:inline>
+    .cd-link-hotspot .cd-link-arrow{
+      width: 46px; height: 46px; border-radius: 9999px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      position: relative;
+    }
+    .cd-link-hotspot .cd-link-arrow::after{
+      content: ''; position: absolute; inset: 0; margin: auto;
+      width: 0; height: 0; border-style: solid;
+      border-width: 10px 0 10px 16px; border-color: transparent transparent transparent #111;
+      transform: translateX(8px);
+    }
+  </style>
+</div>

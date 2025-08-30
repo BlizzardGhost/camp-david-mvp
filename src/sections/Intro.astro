@@ -1,0 +1,54 @@
+---
+import SectionHeader from '@/components/SectionHeader.astro';
+
+// Local 360 export already in your project:
+const VR_SRC = '/vr-tours/outside/index.html';
+---
+<section id="about" class="bg-neutral-100">
+  <div class="mx-auto max-w-6xl px-4 md:px-6 py-12 md:py-14">
+    <div class="grid items-center gap-8 md:gap-10 md:grid-cols-2">
+      <!-- Text column -->
+      <div>
+        <SectionHeader
+          kicker="A HIDDEN GEM AT BANTAM LAKE"
+          title="Welcome to Camp David"
+          as="h1"
+          align="left"
+          dense={true}
+          divider={true}
+          className="mb-4"
+        />
+        <div class="mt-6 space-y-5 text-[16px] leading-[1.6] text-neutral-700">
+  <p>
+    Planning a family reunion, small wedding or other special event with lodging for
+    25–35 guests? We have the perfect solution.
+  </p>
+  <p>
+    Spend an idyllic vacation at Camp David with your extended family, soaking up the
+    sun, making beautiful memories, and enjoying the spectacular views and waterfront
+    activities at pristine Bantam Lake.
+  </p>
+  <p>
+    Camp David is conveniently located in northwest Connecticut, about a 2-hour drive
+    from New York City and less than 3 hours from Boston, just south of the Berkshires
+    but without the tourist crowds.
+  </p>
+</div>
+      </div>
+
+      <!-- Media column -->
+      <div class="w-full overflow-hidden rounded-xl border border-black/10">
+        <iframe
+          src={VR_SRC}
+          title="Camp David 360° Tour"
+          class="block w-full aspect-[16/9]"
+          loading="lazy"
+          allow="xr-spatial-tracking; gyroscope; accelerometer; fullscreen"
+        />
+        <noscript>
+          <a href={VR_SRC} class="block p-3 text-center text-sm">View the 360° tour</a>
+        </noscript>
+      </div>
+    </div>
+  </div>
+</section>

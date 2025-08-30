@@ -1,0 +1,1 @@
+export const POST = async ({ request }) => { const { checkIn, checkOut, guests=1 } = await request.json(); const a=new Date(checkIn), b=new Date(checkOut); const nights=Math.max(1, Math.ceil((b.getTime()-a.getTime())/86400000)); const total=Math.round((450*nights+180)*1.11); return new Response(JSON.stringify({ total }), { headers:{'content-type':'application/json'} }); };

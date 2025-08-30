@@ -1,0 +1,8 @@
+html { font-size: 18px; }            /* base up from ~16 → 18 */
+@media (min-width: 1024px) {
+  html { font-size: 19px; }          /* a touch larger on desktop */
+}
+body { line-height: 1.65; }
+
+
+@tailwind base;@tailwind components;@tailwind utilities;html{scroll-behavior:smooth}:focus-visible{outline:3px solid #347fff;outline-offset:2px}

@@ -1,0 +1,169 @@
+---
+/* Navbar-anchored concierge with AI-ish chat UI */
+---
+<div id="cd-inline" class="relative">
+  <!-- Launcher -->
+  <button id="cdFab" type="button" aria-expanded="false"
+    class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white
+           ring-1 ring-white/10 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+    <span class="grid h-6 w-6 place-items-center rounded-full bg-white/10">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-current">
+        <path d="M12 3C7 3 3 6.6 3 11c0 1.9.8 3.7 2.1 5.1L4 21l4.1-1.1c1.2.4 2.5.6 3.9.6 5 0 9-3.6 9-8s-4-8-9-8z"/>
+      </svg>
+    </span>
+    <span>Ask about Camp David</span>
+  </button>
+
+  <!-- Panel -->
+  <div id="cdPanel" role="dialog" aria-modal="true" aria-labelledby="cdTitle"
+    class="invisible pointer-events-none absolute right-0 top-[calc(100%+8px)] z-50 w-[min(92vw,520px)]
+           rounded-2xl bg-white p-0 text-neutral-900 shadow-2xl ring-1 ring-black/10
+           opacity-0 translate-y-1 transition
+           data-[open=true]:visible data-[open=true]:pointer-events-auto data-[open=true]:opacity-100 data-[open=true]:translate-y-0">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 pt-4">
+      <div>
+        <h4 id="cdTitle" class="text-[17px] font-semibold">Camp David Concierge</h4>
+        <div class="mt-1 flex items-center gap-2 text-xs text-neutral-500">
+          <span class="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-[2px]">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Online
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-[2px]">AI · Beta</span>
+        </div>
+      </div>
+      <button id="cdClose" type="button" aria-label="Close" class="rounded-full p-1 hover:bg-neutral-100">
+        <svg viewBox="0 0 24 24" class="h-5 w-5"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3L16.9 4.3z"/></svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="cdMsgs" class="mt-3 max-h-[46vh] overflow-auto px-4 pb-3">
+      <!-- assistant greeting -->
+      <div class="mb-3 flex gap-2">
+        <div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-neutral-900/90 text-white grid place-items-center text-[11px]">AI</div>
+        <div class="rounded-2xl rounded-tl-sm bg-neutral-100 px-3 py-2 text-[14px] leading-6 text-neutral-800">
+          Hi! I can help with availability, cottages, and event planning. Ask me anything—or pick a quick question below.
+        </div>
+      </div>
+      <!-- typing slot -->
+      <div id="cdTyping" class="hidden pl-8">
+        <div class="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1.5">
+          <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400"></span>
+          <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:120ms]"></span>
+          <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:240ms]"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick chips -->
+    <div class="flex flex-wrap gap-2 px-4">
+      <button data-chip="Is Lakefront open July 12–14?" class="chip">Is Lakefront open July 12–14?</button>
+      <button data-chip="Can we host a small wedding?" class="chip">Can we host a small wedding?</button>
+      <button data-chip="Do you provide kayaks & lifejackets?" class="chip">Do you provide kayaks & lifejackets?</button>
+    </div>
+
+    <!-- Input row -->
+    <form id="cdForm" class="mt-3 flex gap-2 border-t border-neutral-100 px-4 py-3" onsubmit="return false;">
+      <input id="cdInput" type="text"
+        placeholder="e.g., Availability in September for 10 people?"
+        class="w-full rounded-md border border-black/10 px-3 py-2 text-[15px] outline-none focus:border-black/20" />
+      <button id="cdSend" type="submit"
+        class="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-800">
+        Send
+      </button>
+    </form>
+
+    <p class="px-4 pb-4 text-xs text-neutral-400">Answers may use site content & owner notes. Not a booking confirmation.</p>
+  </div>
+</div>
+
+<style is:inline>
+  .chip{font-size:12px;line-height:1; padding:.5rem .6rem;border-radius:9999px;background:#f3f3f3}
+  .chip:hover{background:#ececec}
+</style>
+
+<script is:inline>
+(function () {
+  const root  = document.getElementById('cd-inline');
+  const fab   = document.getElementById('cdFab');
+  const panel = document.getElementById('cdPanel');
+  const close = document.getElementById('cdClose');
+  const form  = document.getElementById('cdForm');
+  const input = document.getElementById('cdInput');
+  const msgs  = document.getElementById('cdMsgs');
+  const typing= document.getElementById('cdTyping');
+
+  let open = false;
+  const history = []; // {role:'user'|'assistant', content:string}
+
+  function openPanel(){ open=true; fab.setAttribute('aria-expanded','true'); panel.dataset.open='true'; setTimeout(()=>input?.focus(),100); }
+  function closePanel(){ open=false; fab.setAttribute('aria-expanded','false'); panel.dataset.open='false'; fab.focus(); }
+
+  fab.addEventListener('click', () => open ? closePanel() : openPanel());
+  close.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && open) closePanel(); });
+  document.addEventListener('click', (e)=>{ if(open && !root.contains(e.target)) closePanel(); });
+
+  // quick chips
+  root.querySelectorAll('[data-chip]').forEach(b=>{
+    b.addEventListener('click',()=>{ input.value=b.dataset.chip; send(); });
+  });
+
+  form.addEventListener('submit', (e)=>{ e.preventDefault(); send(); });
+
+  function render(role, text){
+    const wrap = document.createElement('div');
+    wrap.className = (role==='user'?'mb-3 flex justify-end':'mb-3 flex gap-2');
+    wrap.innerHTML = role==='user'
+      ? `<div class="max-w-[85%] rounded-2xl rounded-tr-sm bg-neutral-900 text-white px-3 py-2 text-[14px] leading-6">${escapeHTML(text)}</div>`
+      : `<div class="mt-1 h-6 w-6 shrink-0 rounded-full bg-neutral-900/90 text-white grid place-items-center text-[11px]">AI</div>
+         <div class="max-w-[85%] rounded-2xl rounded-tl-sm bg-neutral-100 px-3 py-2 text-[14px] leading-6 text-neutral-800">${escapeHTML(text)}</div>`;
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function setTyping(v){ typing.classList.toggle('hidden', !v); msgs.scrollTop = msgs.scrollHeight; }
+
+  async function send(){
+    const q = (input.value || '').trim();
+    if(!q) return;
+    input.value='';
+    history.push({role:'user', content:q}); render('user', q);
+    setTyping(true);
+
+    try {
+      const res = await fetch('/api/ai', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: history.slice(-8) }) // keep context short
+      });
+      if(!res.ok) throw new Error('api');
+      const data = await res.json();
+      const a = (data?.text || '').trim();
+      setTyping(false);
+      history.push({role:'assistant', content:a});
+      render('assistant', a || "Thanks! I've noted that.");
+    } catch (err){
+      // DEMO fallback (no key / local dev)
+      setTyping(false);
+      const a = demoAnswer(q);
+      history.push({role:'assistant', content:a});
+      render('assistant', a);
+    }
+  }
+
+  function demoAnswer(q){
+    const s=q.toLowerCase();
+    if(s.includes('lakefront') && (s.includes('open')||s.includes('available')))
+      return "Lakefront is usually popular in July. For the demo, let's assume **July 12–14 is open**. Tap *Availability* to request those dates.";
+    if(s.includes('wedding')||s.includes('reception'))
+      return "Yes—small weddings & reunions are welcome. The lakefront lawn + party room fit intimate events. Ask if you'd like sample layouts.";
+    if(s.includes('kayak')||s.includes('lifejacket'))
+      return "Kayaks, inflatables, and lifejackets are free to use. Water depth by the dock is ~1–3 ft—great for kids (with supervision).";
+    return "Got it! For booking details, share dates, group size, and preferred cottage—and I’ll check availability or suggest options.";
+  }
+
+  function escapeHTML(s){ return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+})();
+</script>
