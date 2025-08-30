@@ -7,7 +7,11 @@ const {
   canonical,
 } = Astro.props;
 
-// define once here (server-side)
+const SITE = (Astro.site && Astro.site.href) || 'https://camp-david-mvp.vercel.app';
+
+// Use the exact OG image you provided (absolute URL)
+const OG_IMAGE = 'https://www.campdavidct.com/wp-content/uploads/2022/06/Camp-David-Bantam-Lake-Morris-CT.jpg';
+
 const DEV = import.meta.env.DEV;
 ---
 <!doctype html>
@@ -19,6 +23,22 @@ const DEV = import.meta.env.DEV;
     <title>{title}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={canonical} />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical ?? SITE} />
+    <meta property="og:image" content={OG_IMAGE} />
+    <meta property="og:image:secure_url" content={OG_IMAGE} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={OG_IMAGE} />
 
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -38,11 +58,11 @@ const DEV = import.meta.env.DEV;
       .ui-font { font-family:"Roboto",system-ui,sans-serif; font-weight:600; }
     </style>
 
-    <!-- Pannellum globally (once) -->
+    <!-- Pannellum -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
   </head>
-  <body class="min-h-screen bg-white text-neutral-800 font-sans" data-dev={String(DEV)}>
+  <body class="min-h-screen bg-white text-neutral-800 font-sans">
     <a class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 p-2 bg-white" href="#main">Skip to content</a>
 
     <slot name="header" />
@@ -51,21 +71,11 @@ const DEV = import.meta.env.DEV;
 
     <!-- One (and only) opener for any [data-open-modal="id"] -->
     <script is:inline>
-      document.addEventListener('click', function (e) {
-        var target = e.target;
-        var btn = target && target.closest ? target.closest('[data-open-modal]') : null;
+      document.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('[data-open-modal]') : null;
         if (!btn) return;
-
-        var id = btn.getAttribute('data-open-modal') || '';
-
-        // Dev-only console noise without server-side interpolation
-        if (document.body && document.body.dataset.dev === 'true' && console && console.debug) {
-          console.debug('[open-modal click]', id);
-        }
-
-        // Prevent default navigation if it's an anchor acting as a button
-        if (btn.tagName === 'A') e.preventDefault();
-
+        const id = btn.getAttribute('data-open-modal');
+        if (${JSON.stringify(DEV)}) console.debug('[open-modal click]', id);
         window.dispatchEvent(new CustomEvent('cd:open-cottage', { detail: id }));
       });
     </script>
